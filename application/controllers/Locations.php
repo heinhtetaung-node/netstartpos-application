@@ -117,6 +117,7 @@ class Locations extends Secure_area implements Idata_controller
 		echo json_encode($suggestions);
 	}
 	
+
 	// edited by Hein Htet Aung @16Jan2017 ({
 	function view($location_id=-1,$redirect=false)  
 	{
@@ -150,12 +151,7 @@ class Locations extends Secure_area implements Idata_controller
 			$data['all_timezones'] = $this->_get_timezones();
 			$data['redirect']=$redirect;
 			
-			$data['employees'] = array();
-			foreach ($this->Employee->get_all()->result() as $employee)
-			{
-				$has_access = $this->Employee->is_employee_authenticated($employee->person_id, $location_id);
-				$data['employees'][$employee->person_id] = array('name' => $employee->first_name . ' '. $employee->last_name, 'has_access' => $has_access);
-			}
+			
 					
 			if ($this->Location->get_info_for_key('credit_card_processor') == 'mercury' || !$this->Location->get_info_for_key('credit_card_processor'))
 			{
@@ -182,11 +178,19 @@ class Locations extends Secure_area implements Idata_controller
 				$data['emv_param_download_init_params'] = $credit_card_processor->get_emv_param_download_params();
 			}
 		}
+		
+		$data['employees'] = array();
+		foreach ($this->Employee->get_all()->result() as $employee)
+		{
+			$has_access = $this->Employee->is_employee_authenticated($employee->person_id, $location_id);
+			$data['employees'][$employee->person_id] = array('name' => $employee->first_name . ' '. $employee->last_name, 'has_access' => $has_access);
+		}
+
 		$this->load->view("locations/form",$data);
 	}
 	// edited by Hein Htet Aung @16Jan2017 });
 	
-	
+
 	//http://stackoverflow.com/questions/1727077/generating-a-drop-down-list-of-timezones-with-php
 	function _get_timezones()
 	{
@@ -297,7 +301,9 @@ class Locations extends Secure_area implements Idata_controller
 		echo json_encode(array('success'=>false));
 	}
 
-	function save($location_id=-1)
+	
+	// edited by Hein Htet Aung @16Jan2017 ({
+	function save($location_id=-1)		
 	{
 		$this->check_action_permission('add_update');
 		
@@ -420,6 +426,7 @@ class Locations extends Secure_area implements Idata_controller
 		}
 
 	}
+	// edited by Hein Htet Aung @16Jan2017 });
 	
 	function save_registers($location_id, $registers_to_edit, $registers_to_add, $registers_to_delete)
 	{		

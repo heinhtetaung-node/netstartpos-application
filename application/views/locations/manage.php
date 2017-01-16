@@ -124,7 +124,7 @@ $(document).ready(function()
 		// });
 		
 		// return false;
-	})
+	});
 	</script>	
 <?php } ?>		
 <?php $this->load->view("partial/footer"); ?>
