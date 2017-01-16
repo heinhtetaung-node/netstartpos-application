@@ -117,72 +117,75 @@ class Locations extends Secure_area implements Idata_controller
 		echo json_encode($suggestions);
 	}
 	
-
-	function view($location_id=-1,$redirect=false)
+	// edited by Hein Htet Aung @16Jan2017 ({
+	function view($location_id=-1,$redirect=false)  
 	{
 		//$this->check_action_permission('add_update');
+		if($location_id!=-1){
 		
-		$location_info = $this->Location->get_info($location_id);
-		$data = array();
-		$data['needs_auth'] = FALSE;
-		
-		$this->load->helper('demo');
-		if (!is_on_demo_host())
-		{
-			if (!$location_info->location_id && !$this->session->flashdata('has_location_auth'))
+			$location_info = $this->Location->get_info($location_id);
+			$data = array();
+			$data['needs_auth'] = FALSE;
+			
+			$this->load->helper('demo');
+			if (!is_on_demo_host())
 			{
-				$data['needs_auth'] = TRUE;
+				if (!$location_info->location_id && !$this->session->flashdata('has_location_auth'))
+				{
+					$data['needs_auth'] = TRUE;
+				}
+			}
+			if ($this->session->flashdata('purchase_email'))
+			{
+				$data['purchase_email'] = $this->session->flashdata('purchase_email');
+			}
+			else
+			{
+				$data['purchase_email'] = '';
+			}
+			
+			$data['location_info']=$location_info;
+			//$data['registers'] = $this->Register->get_all($location_id);
+			
+			$data['all_timezones'] = $this->_get_timezones();
+			$data['redirect']=$redirect;
+			
+			$data['employees'] = array();
+			foreach ($this->Employee->get_all()->result() as $employee)
+			{
+				$has_access = $this->Employee->is_employee_authenticated($employee->person_id, $location_id);
+				$data['employees'][$employee->person_id] = array('name' => $employee->first_name . ' '. $employee->last_name, 'has_access' => $has_access);
+			}
+					
+			if ($this->Location->get_info_for_key('credit_card_processor') == 'mercury' || !$this->Location->get_info_for_key('credit_card_processor'))
+			{
+				require_once (APPPATH.'libraries/Mercuryemvusbprocessor.php');
+				$credit_card_processor = new MercuryEMVUSBProcessor($this);
+				$data['emv_param_download_init_params'] = $credit_card_processor->get_emv_param_download_params();
+			}
+			elseif ($this->Location->get_info_for_key('credit_card_processor') == 'heartland')
+			{
+				require_once (APPPATH.'libraries/Heartlandemvusbprocessor.php');
+				$credit_card_processor = new Heartlandemvusbprocessor($this);
+				$data['emv_param_download_init_params'] = $credit_card_processor->get_emv_param_download_params();			
+			}
+			elseif ($this->Location->get_info_for_key('credit_card_processor') == 'evo')
+			{
+				require_once (APPPATH.'libraries/Evoemvusbprocessor.php');
+				$credit_card_processor = new Evoemvusbprocessor($this);
+				$data['emv_param_download_init_params'] = $credit_card_processor->get_emv_param_download_params();			
+			}
+			else //Default to Mercury just so we have something.... (most likley going to be caught in if statements above)
+			{
+				require_once (APPPATH.'libraries/Mercuryemvusbprocessor.php');
+				$credit_card_processor = new MercuryEMVUSBProcessor($this);
+				$data['emv_param_download_init_params'] = $credit_card_processor->get_emv_param_download_params();
 			}
 		}
-		if ($this->session->flashdata('purchase_email'))
-		{
-			$data['purchase_email'] = $this->session->flashdata('purchase_email');
-		}
-		else
-		{
-			$data['purchase_email'] = '';
-		}
-		
-		$data['location_info']=$location_info;
-		$data['registers'] = $this->Register->get_all($location_id);
-		
-		$data['all_timezones'] = $this->_get_timezones();
-		$data['redirect']=$redirect;
-		
-		$data['employees'] = array();
-		foreach ($this->Employee->get_all()->result() as $employee)
-		{
-			$has_access = $this->Employee->is_employee_authenticated($employee->person_id, $location_id);
-			$data['employees'][$employee->person_id] = array('name' => $employee->first_name . ' '. $employee->last_name, 'has_access' => $has_access);
-		}
-				
-		if ($this->Location->get_info_for_key('credit_card_processor') == 'mercury' || !$this->Location->get_info_for_key('credit_card_processor'))
-		{
-			require_once (APPPATH.'libraries/Mercuryemvusbprocessor.php');
-			$credit_card_processor = new MercuryEMVUSBProcessor($this);
-			$data['emv_param_download_init_params'] = $credit_card_processor->get_emv_param_download_params();
-		}
-		elseif ($this->Location->get_info_for_key('credit_card_processor') == 'heartland')
-		{
-			require_once (APPPATH.'libraries/Heartlandemvusbprocessor.php');
-			$credit_card_processor = new Heartlandemvusbprocessor($this);
-			$data['emv_param_download_init_params'] = $credit_card_processor->get_emv_param_download_params();			
-		}
-		elseif ($this->Location->get_info_for_key('credit_card_processor') == 'evo')
-		{
-			require_once (APPPATH.'libraries/Evoemvusbprocessor.php');
-			$credit_card_processor = new Evoemvusbprocessor($this);
-			$data['emv_param_download_init_params'] = $credit_card_processor->get_emv_param_download_params();			
-		}
-		else //Default to Mercury just so we have something.... (most likley going to be caught in if statements above)
-		{
-			require_once (APPPATH.'libraries/Mercuryemvusbprocessor.php');
-			$credit_card_processor = new MercuryEMVUSBProcessor($this);
-			$data['emv_param_download_init_params'] = $credit_card_processor->get_emv_param_download_params();
-		}
-				
 		$this->load->view("locations/form",$data);
 	}
+	// edited by Hein Htet Aung @16Jan2017 });
+	
 	
 	//http://stackoverflow.com/questions/1727077/generating-a-drop-down-list-of-timezones-with-php
 	function _get_timezones()
@@ -334,7 +337,9 @@ class Locations extends Secure_area implements Idata_controller
 		'default_tax_4_name'=>$this->input->post('default_tax_4_name'),		
 		'default_tax_5_rate'=>$this->input->post('default_tax_5_rate') && is_numeric($this->input->post('default_tax_5_rate')) ?  $this->input->post('default_tax_5_rate') : NULL ,		
 		'default_tax_5_name'=>$this->input->post('default_tax_5_name'),		
-	);
+		);
+		
+		//var_dump($location_data); exit;
 		
 		$redirect = $this->input->post('redirect');
 		$employees = $this->input->post('employees') ? $this->input->post('employees') : array();
@@ -380,12 +385,14 @@ class Locations extends Secure_area implements Idata_controller
 			$purchase_email = $this->input->post('purchase_email');
 		
 			$this->load->helper('demo');
-			if (!is_on_demo_host() && (!$purchase_email || !$this->does_have_valid_number_of_locations_for_an_additional_location($purchase_email)))
-			{
-				echo json_encode(array('success'=>false,'message'=>lang('locations_error_adding_updating')));
-				die();
-			}
+			// if (!is_on_demo_host() && (!$purchase_email || !$this->does_have_valid_number_of_locations_for_an_additional_location($purchase_email)))
+			// {
+				// echo json_encode(array('success'=>false,'message'=>lang('locations_error_adding_updating')));
+				// die();
+			// }
 		}
+		
+		//var_dump($location_data); exit;
 		
 		if($this->Location->save($location_data,$location_id) && $this->Location->assign_employees_to_location($location_id != -1 ? $location_id : $location_data['location_id'],$employees))
 		{

@@ -168,7 +168,7 @@
 							</div>
 						</div>
 						
-						<div class="form-group add-register-table">	
+						<div class="form-group add-register-table hidden">  <!-- edited by Hein Htet Aung @16Jan2017 -->	
 							<?php echo form_label(lang('locations_registers').' :', null,array('class'=>'col-sm-3 col-md-3 col-lg-2 control-label ')); ?>
 							<div class="table-responsive m-lr-15">
 								<table id="price_registers" class="table">
@@ -180,11 +180,14 @@
 									</thead>
 									
 									<tbody>
-									<?php foreach($registers->result() as $register) { ?>
-										<tr><td><input type="text" class="form-control" name="registers_to_edit[<?php echo $register->register_id; ?>]" value="<?php echo H($register->name); ?>" /></td><td>
-										<a class="delete_register" href="javascript:void(0);" data-register-id='<?php echo $register->register_id; ?>'><?php echo lang('common_delete'); ?></a>
-									</td></tr>
-									<?php } ?>
+									<!-- 
+									edited by Hein Htet Aung @16Jan2017
+									<?php //foreach($registers->result() as $register) { ?>
+                                        <tr><td><input type="text" class="form-control" name="registers_to_edit[<?php //echo $register->register_id; ?>]" value="<?php //echo H($register->name); ?>" /></td><td>
+                                        <a class="delete_register" href="javascript:void(0);" data-register-id='<?php //echo $register->register_id; ?>'><?php //echo lang('common_delete'); ?></a>
+                                    </td></tr>
+                                    <?php //} ?>
+									-->
 									</tbody>
 								</table>
 								<a href="javascript:void(0);" id="add_register"><?php echo lang('locations_add_register'); ?></a>

@@ -110,19 +110,20 @@ $(document).ready(function()
 	<script type="text/javascript">
 	$('#new_location_btn').click(function()
 	{
-		bootbox.confirm(<?php echo json_encode(lang('locations_confirm_purchase')); ?>, function(result)
-		{
-			if (!result)
-			{
-				window.location='http://apps.amztechnology.com/netstartposv2/buy_additional.php';
-			}
-			else
-			{
+		// edited by Hein Htet Aung @16Jan2017
+		// bootbox.confirm(<?php echo json_encode(lang('locations_confirm_purchase')); ?>, function(result)
+		// {
+			// if (!result)
+			// {
+				// window.location='http://apps.amztechnology.com/netstartposv2/buy_additional.php';
+			// }
+			// else
+			// {
 				window.location = $("#new_location_btn").attr('href');
-			}
-		});
+			// }
+		// });
 		
-		return false;
+		// return false;
 	})
 	</script>	
 <?php } ?>		
