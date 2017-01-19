@@ -86,7 +86,7 @@ class Receiving extends CI_Model
 		{
 			$previous_receiving_items = array();
 			$this->db->insert('receivings',$receivings_data);
-			$receiving_id = $this->db->insert_id();
+			$receiving_id = $this->db->insert_id();			
 		}
 
 		foreach($items as $line=>$item)
@@ -129,7 +129,19 @@ class Receiving extends CI_Model
 				'item_unit_price'=>$item['price'],
 				'expire_date' => $expire_date,
 			);
-
+			
+			/* Edited by HeinHtetAung 17Jan2016 ({ */
+			if ($this->config->item('fifo'))
+			{
+				$current_cost=$cost_price;
+				$received_cost=$receivings_items_data['item_unit_price'];
+				
+				if($current_cost!=$received_cost){
+					$receivings_items_data['item_cost_price']=$received_cost;
+				}
+			}
+			/* Edited by HeinHtetAung 17Jan2016 }); */
+			
 			$this->db->insert('receivings_items',$receivings_items_data);
 			
 			if ($suspended == 0)
@@ -140,6 +152,80 @@ class Receiving extends CI_Model
 					$this->calculate_and_update_average_cost_price_for_item($item['item_id'], $receivings_items_data);
 					unset($receivings_items_data['item_unit_price_before_tax']);
 				}
+				/* Edited by HeinHtetAung 17Jan2016 ({ */
+				if ($this->config->item('fifo'))
+				{
+					
+					//echo "<pre>"; var_dump($receivings_items_data); echo "</pre>";
+					//echo "current cost - ". $cost_price;
+					//echo "<br>current qty - ". $cur_item_location_info->quantity;
+					//echo "<br><br>received cost - ". $receivings_items_data['item_unit_price'];
+					//echo "<br>received quantity - ". $quantity_received; exit;
+					
+					$current_cost=$cost_price;
+					$received_cost=$receivings_items_data['item_unit_price'];
+					
+					if($current_cost!=$received_cost){
+						
+						$item_id=$item['item_id'];
+						
+						// SELECT SUM of left quantity from all location from stock 
+						$sql="SELECT SUM(quantity) AS qty FROM `phppos_location_items` WHERE item_id=".$item_id;
+						$query = $this->db->query($sql);
+						if($query->num_rows() > 0)
+						{
+							$oldqty=$query->row()->qty;
+						}else{
+							$oldqty=0;
+						}
+						
+						// update has_fifo to phppos_items table
+						$phppos_items = array(
+							'has_fifo' => 0,
+							'cost_price' => $received_cost
+						);
+						
+						
+						if($oldqty>0){
+							$phppos_items['has_fifo']=1;
+							
+							$sql="SELECT SUM(oldqty) AS fifoqtysum FROM `phppos_receivings_fifo` WHERE item_id=".$item_id." AND oldqty!=0 ORDER BY fifo_id ASC";
+							$query = $this->db->query($sql);
+							if($query->num_rows() > 0)
+							{
+								$lastfifoqty=($oldqty+$quantity_received)-($quantity_received+$query->row()->fifoqtysum);
+								$oldqty=$lastfifoqty;
+								
+								//$oldqty=$quantity_received; ! wrong logic
+							}
+							
+							// save record in phppos_receivings_fifo table 
+							$phppos_receivings_fifo = array(
+								'receiving_id' => $receiving_id,
+								'item_id' => $item_id,
+								'location_id' => $cur_item_location_info->location_id,
+								'oldqty' => $oldqty,
+								'oldcost' => $current_cost
+							);
+							$this->db->insert('phppos_receivings_fifo',$phppos_receivings_fifo);
+							
+							// echo "<pre>";
+							// var_dump($phppos_items);
+							// echo "<pre>";
+							// echo "<hr>";
+							// echo "<pre>";
+							// var_dump($phppos_receivings_fifo);
+							// echo "<pre>"; exit;
+						}
+						
+						$this->db->where('item_id', $item_id);
+						$this->db->update('phppos_items', $phppos_items);
+					}
+					//echo "same cost";
+					//exit;
+					//to continue
+				}
+				/* Edited by HeinHtetAung 17Jan2016 }); */
 			}
 			
 			//Update stock quantity IF not a service item

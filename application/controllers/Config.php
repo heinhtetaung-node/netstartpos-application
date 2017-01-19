@@ -45,12 +45,15 @@ class Config extends Secure_area
 			$expire = $k*60*60;
 			$data['phppos_session_expirations']["$expire"] = $k.' '.lang('config_hours');
 		}
-				
+		
 		$this->load->view("config", $data);
 	}
 		
 	function save()
 	{
+		//echo "<pre>";
+		//var_dump($this->input->post());
+		//echo "</pre>"; exit;
 		$this->load->helper('demo');
 		$this->load->model('Appfile');
 		
@@ -127,6 +130,7 @@ class Config extends Secure_area
 		'show_receipt_after_suspending_sale' => $this->input->post('show_receipt_after_suspending_sale') ? 1 : 0,
 		'customers_store_accounts' => $this->input->post('customers_store_accounts') ? 1 : 0,
 		'calculate_average_cost_price_from_receivings' => $this->input->post('calculate_average_cost_price_from_receivings') ? 1 : 0,
+		'fifo' => $this->input->post('fifo') ? 1 : 0,
 		'averaging_method' => $this->input->post('averaging_method'),
 		'hide_dashboard_statistics' => $this->input->post('hide_dashboard_statistics') ? 1 : 0,
 		'show_language_switcher' => $this->input->post('show_language_switcher') ? 1 : 0,

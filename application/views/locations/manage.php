@@ -110,7 +110,7 @@ $(document).ready(function()
 	<script type="text/javascript">
 	$('#new_location_btn').click(function()
 	{
-		// edited by Hein Htet Aung @16Jan2017
+		// edited by Hein Htet Aung @16Jan2017 
 		// bootbox.confirm(<?php echo json_encode(lang('locations_confirm_purchase')); ?>, function(result)
 		// {
 			// if (!result)

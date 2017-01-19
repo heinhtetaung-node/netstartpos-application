@@ -599,7 +599,19 @@ $this->load->helper('demo');
 							</div>
 						</div>
 					</div>
-										
+					
+					<div class="form-group">	
+						<label class="col-sm-3 col-md-3 col-lg-2 control-label ">Calculate Cost By FIFO</label>
+						<div class="col-sm-9 col-md-9 col-lg-10">
+						<?php echo form_checkbox(array(
+							'name'=>'fifo',
+							'id'=>'fifo',
+							'value'=>'1',
+							'checked'=>$this->config->item('fifo')));?>
+							<label for="fifo"><span></span></label>
+						</div>
+					</div>
+					
 					<div class="form-group">	
 						<?php echo form_label(lang('config_always_use_average_cost_method').' :', 'always_use_average_cost_method',array('class'=>'col-sm-3 col-md-3 col-lg-2 control-label ')); ?>
 						<div class="col-sm-9 col-md-9 col-lg-10">

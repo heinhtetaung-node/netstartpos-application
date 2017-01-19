@@ -178,7 +178,7 @@ class Locations extends Secure_area implements Idata_controller
 				$data['emv_param_download_init_params'] = $credit_card_processor->get_emv_param_download_params();
 			}
 		}
-		
+		$data['registers'] = $this->Register->get_all($location_id);
 		$data['employees'] = array();
 		foreach ($this->Employee->get_all()->result() as $employee)
 		{

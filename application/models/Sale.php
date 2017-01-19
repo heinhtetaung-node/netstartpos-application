@@ -644,6 +644,10 @@ class Sale extends CI_Model
 		$has_added_giftcard_value_to_cost_price = $total_giftcard_payments > 0 ? false : true;
 		$store_account_item_id = $this->Item->get_store_account_item_id();
 		
+		// echo "<pre>";
+		// var_dump($items);
+		// echo "</pre>";
+		// exit;
 		foreach($items as $line=>$item)
 		{
 			if (isset($item['item_id']))
@@ -675,6 +679,112 @@ class Sale extends CI_Model
 						$has_added_giftcard_value_to_cost_price = true;
 					}
 				}
+				
+				
+				/* Edited by HeinHtetAung 17Jan2016 ({ */
+				if ($this->config->item('fifo'))
+				{
+					//echo "ei";
+					$ori_cost_price=$cost_price;
+					
+					$sql="SELECT * FROM `phppos_items` WHERE item_id=".$item['item_id'];
+					$query = $this->db->query($sql);
+					if($query->num_rows() > 0)
+					{
+						$has_fifo=$query->row()->has_fifo;
+					}else{
+						$has_fifo=0;
+					}
+					//echo $has_fifo;
+					if($has_fifo==1){
+						//echo "ei1";
+						$sql="SELECT * FROM `phppos_receivings_fifo` WHERE item_id=".$item['item_id']." AND oldqty!=0 ORDER BY fifo_id ASC";
+						$query = $this->db->query($sql);
+						if($query->num_rows() > 0)
+						{
+							//echo "ei2";
+							$buyqty=$item['quantity'];
+							//echo $buyqty;
+							$i=0;
+							$rows=$query->result_array();
+							$totalcost=0;
+							foreach($rows as $row){
+								
+								
+								$oldcost=$row['oldcost'];
+								$oldqty=$row['oldqty'];
+								$fifo_id=$row['fifo_id'];
+								$receiving_id=$row['receiving_id'];
+							
+							
+								if($oldqty>=$buyqty){
+									
+									$updatefifo_oldqty=$oldqty-$buyqty;
+									
+									$phppos_receivings_fifo = array(
+										'oldqty' => $updatefifo_oldqty
+									);
+									$this->db->where('fifo_id', $fifo_id);
+									$this->db->update('phppos_receivings_fifo', $phppos_receivings_fifo);
+									
+									//$sql="UPDATE `phppos_receivings_fifo` SET oldqty=".$updatefifo_oldqty." WHERE fifo_id=".$fifo_id;
+									//echo $sql;
+									//$query = $this->db->query($sql);
+						
+									$cost_price = $oldcost*$buyqty;
+									$totalcost=$totalcost+$cost_price;									
+									$buyqty=0;
+									break;
+									
+								}else{
+									
+									$phppos_receivings_fifo = array(
+										'oldqty' => 0
+									);
+									$this->db->where('fifo_id', $fifo_id);
+									$this->db->update('phppos_receivings_fifo', $phppos_receivings_fifo);
+									//
+									//$sql="UPDATE `phppos_receivings_fifo` SET oldqty=0 WHERE fifo_id=".$fifo_id;
+									//echo $sql;
+									$buyqty=$buyqty-$oldqty;
+									
+									$cost_price = $oldcost*$oldqty;
+									$totalcost=$totalcost+$cost_price;
+																		
+								}
+								
+								$i++;
+							}
+							
+							if($buyqty>0){
+								// echo $ori_cost_price; 
+								// echo "<br>";
+								// echo $buyqty;
+								// echo "<br>";
+								// echo $totalcost;
+								// echo "<br>";
+								
+								$phppos_items = array(
+									'has_fifo' => 0
+								);
+								$this->db->where('item_id', $item['item_id']);
+								$this->db->update('phppos_items', $phppos_items);
+								
+								$cost_price=$ori_cost_price*$buyqty;
+								$totalcost=$totalcost+$cost_price;
+							}
+							
+							//echo "<hr>"."totalcost - ". $totalcost ."<br>";
+							//echo "buyqty - ". $buyqty ."<br>";
+							$buyqty=$item['quantity'];
+							$cost_price=$totalcost/$buyqty;
+							//echo "cost_price - ". $cost_price ."<br>";							
+						}
+					}
+				}
+				/* Edited by HeinHtetAung 17Jan2016 }); */
+				
+				
 				$reorder_level = ($cur_item_location_info && $cur_item_location_info->reorder_level) ? $cur_item_location_info->reorder_level : $cur_item_info->reorder_level;
 				
 				if ($cur_item_info->tax_included)

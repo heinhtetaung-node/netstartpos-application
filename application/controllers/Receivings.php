@@ -250,6 +250,7 @@ class Receivings extends Secure_area
 
 	function complete()
 	{
+		//echo "ei"; exit;
 		$data['cart']=$this->receiving_lib->get_cart();
 		if (empty($data['cart']))
 		{
