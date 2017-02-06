@@ -11,7 +11,7 @@ function get_people_manage_table($people,$controller)
 	if($controller_name=='customers')
 	{
 		$headers = array('<input type="checkbox" id="select_all" /><label for="select_all"><span></span></label>', 
-		lang('common_person_id'),
+		lang('customers_customer_id'),
 		lang('common_name'),
 		lang('common_email'),
 		lang('common_phone_number'));
@@ -40,7 +40,7 @@ function get_people_manage_table($people,$controller)
 	elseif($controller_name=='employees')
 	{
 		$headers = array('<input type="checkbox" id="select_all" /><label for="select_all"><span></span></label>', 
-		lang('common_person_id'),
+		lang('employees_employees_id'),
 		lang('common_name'),
 		lang('common_email'),
 		lang('common_phone_number'),
@@ -51,7 +51,7 @@ function get_people_manage_table($people,$controller)
 	else
 	{	
 		$headers = array('<input type="checkbox" id="select_all" /><label for="select_all"><span></span></label>', 
-		lang('common_person_id'),
+		lang('employees_employees_id'),
 		lang('common_name'),
 		lang('common_email'),
 		lang('common_phone_number'),
@@ -122,7 +122,7 @@ function get_person_data_row($person,$controller)
 	$table_data_row='<tr>';	
 	$table_data_row.="<td><input type='checkbox' name='person_$person->person_id' id='person_$person->person_id' value='".$person->person_id."'/><label for='person_$person->person_id'><span></span></label></td>";
 	
-	$table_data_row.='<td>'.$person->person_id.'</td>';
+	$table_data_row.='<td>'.$person->id.'</td>';  //just person_id change to id //Edited by HeinHtetAung @2Feb2017 to show real id 
 	$table_data_row.='<td ><a href="'.$link.'" class="underline">'.H($person->first_name).' '.H($person->last_name).'</a></td>';
 	$table_data_row.='<td>'.mailto(H($person->email),H($person->email), array('class' => 'underline')).'</td>';
 	$table_data_row.='<td>'.H($person->phone_number).'</td>';	
@@ -239,7 +239,7 @@ function get_supplier_data_row($supplier,$controller)
 	$table_data_row='<tr>';
 	$table_data_row.="<td><input type='checkbox' id='person_$supplier->person_id' value='".$supplier->person_id."'/><label for='person_$supplier->person_id'><span></span></label></td>";
 	
-	$table_data_row.='<td>'.H($supplier->person_id).'</td>';
+	$table_data_row.='<td>'.H($supplier->id).'</td>';  //just person_id change to id //Edited by HeinHtetAung @2Feb2017 to show real id 
 	$table_data_row.='<td>'.H($supplier->company_name).'</td>';
 	$table_data_row.='<td>'.H($supplier->last_name).'</td>';
 	$table_data_row.='<td>'.H($supplier->first_name).'</td>';

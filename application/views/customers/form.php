@@ -491,7 +491,7 @@
 													'placeholder' => 'MemberID',
 													'value'=> isset($person_info->member_id) ? $person_info->member_id : '')
 												); ?>
-								<input type="hidden" value="<?php echo $person_info->is_member; ?>" name="current_member_status" /> 				
+								<input type="hidden" value="<?php echo $person_info->is_member; ?>" name="current_member_status" />		
 								<span id="member_id_error" class="text-danger" for="member_id">The member id must be 10 characters.</span>
 							</div>
 						</div>
