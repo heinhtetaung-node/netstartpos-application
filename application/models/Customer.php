@@ -23,6 +23,21 @@ class Customer extends Person
 		return ($query->num_rows()==1);
 	}
 	
+	
+	// edited by HeinHtetAung at Janu 31 For Member Points Fix ({
+	function member_exists($member_id)
+	{
+		//echo $member_id;
+		$this->db->from('customers');	
+		$this->db->where('member_id',$member_id);
+		
+		$query = $this->db->get();
+		return $query->num_rows();
+		//return ($query->num_rows()==1);
+	}
+	// edited by HeinHtetAung at Janu 31 For Member Points Fix });
+	
+	
 	function customer_id_from_account_number($account_number)
 	{
 		$this->db->from('customers');	

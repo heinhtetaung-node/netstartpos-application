@@ -468,7 +468,37 @@
 							</div>
 						</div>
 						<?php } ?>
-
+						
+						
+						
+						
+						<!-- edited by HeinHtetAung at Janu 31 For Member Points Fix ({ -->
+						<div class="form-group">	
+							<label for="taxable" class="col-sm-3 col-md-3 col-lg-2 control-label ">Member :</label>
+							<div class="col-sm-9 col-md-9 col-lg-10">
+								<?php echo form_checkbox('is_member', '1', $person_info->is_member == '' ? FALSE : (boolean)$person_info->is_member,'id="is_member"');?>
+								<label for="is_member"><span></span></label>
+							</div>
+						</div>
+						<div class="form-group" id="member_id_box">	
+							<label for="taxable" class="col-sm-3 col-md-3 col-lg-2 control-label "></label>
+							<div class="col-sm-9 col-md-3 col-lg-3">
+								<?php echo form_input(array(
+													'name'=>'member_id',
+													'id'=>'member_id',
+													'size'=>'4',
+													'class'=>'form-control',
+													'placeholder' => 'MemberID',
+													'value'=> isset($person_info->member_id) ? $person_info->member_id : '')
+												); ?>
+								<input type="hidden" value="<?php echo $person_info->is_member; ?>" name="current_member_status" /> 				
+								<span id="member_id_error" class="text-danger" for="member_id">The member id must be 10 characters.</span>
+							</div>
+						</div>
+						<!-- edited by HeinHtetAung at Janu 31 }); -->
+						
+						
+						
 						<?php echo form_hidden('redirect_code', $redirect_code); ?>
 
 						<div class="form-actions pull-right">
@@ -503,8 +533,41 @@
 		</div><!-- /row -->
 	</div>
 
-	<script type='text/javascript'>
-		
+<script type='text/javascript'>
+// edited by HeinHtetAung at Janu 31 For Member Points Fix ({
+$(document).ready(function(){
+	$('#member_id_box').hide();
+	$('#member_id_error').hide();
+	check_member_id();
+	$('#is_member').click(function(){
+		check_member_id();
+	});
+	/*
+	$('#member_id').keyup(function(){
+		if($(this).val().length!=10){
+			//$(this).addClass('has-error');
+			$(this).addClass('err-border');
+			$('#member_id_error').show();
+		}else{
+			//$(this).removeClass('has-error');
+			$(this).removeClass('err-border');
+			$('#member_id_error').hide();
+		}
+	});
+	*/
+});
+
+function check_member_id(){
+	if($('#is_member').prop('checked')){
+		$('#member_id_box').show();
+	}else{
+		$('#member_id_box').hide();
+	}
+}
+
+// edited by HeinHtetAung at Janu 31 });
+						
+						
 		$(".override_default_tax_checkbox").change(function()
 		{
 			$(this).parent().parent().next().toggleClass('hidden')
@@ -573,6 +636,21 @@
 										},
 										<?php } ?>
 										first_name: "required"
+										// edited by HeinHtetAung at Janu 31 For Member Points Fix ({ 
+										,member_id: {
+											required:true,
+											//minlength:10,
+											maxlength:10,
+											<?php if(!$person_info->is_member) { ?>
+											remote:
+											{
+												url: "<?php echo site_url('customers/member_exists');?>", 
+												type: "post"
+
+											}
+											<?php } ?>
+										}
+										// edited by HeinHtetAung at Janu 31 });
 									},
 									errorClass: "text-danger",
 									errorElement: "span",
@@ -590,6 +668,14 @@
 												remote: <?php echo json_encode(lang('common_account_number_exists')); ?>
 											},
 											<?php } ?>
+											// edited by HeinHtetAung at Janu 31 For Member Points Fix ({ 
+											<?php if(!$person_info->is_member) { ?>
+											member_id:
+											{
+												remote: "Member ID already exists."
+											},
+											<?php } ?>
+											// edited by HeinHtetAung at Janu 31 });
 											first_name: <?php echo json_encode(lang('common_first_name_required')); ?>,
 											last_name: <?php echo json_encode(lang('common_last_name_required')); ?>
 										}

@@ -219,6 +219,17 @@ class Customers extends Person_controller
 		echo 'true';
 		
 	}
+	
+	// edited by HeinHtetAung at Janu 31 For Member Points Fix ({
+	function member_exists()
+	{
+		if($this->Customer->member_exists($this->input->post('member_id'))>0)
+		echo 'false';
+		else
+		echo 'true';
+		
+	}
+	// edited by HeinHtetAung at Janu 31 For Member Points Fix });
 
 	function clear_state()
 	{
@@ -246,6 +257,16 @@ class Customers extends Person_controller
 		);
 		
 		
+		// edited by HeinHtetAung at Janu 31 For Member Points Fix ({
+		$points=$this->input->post('points');
+		if($this->input->post('current_member_status')==0){
+			if($this->input->post('points')==0.00){
+				if($this->input->post('is_member')){
+					$points=200.00;
+				}
+			}
+		}
+		
 		$customer_data=array(
 			'company_name' => $this->input->post('company_name'),
 			'tier_id' => $this->input->post('tier_id') ? $this->input->post('tier_id') : NULL,
@@ -253,7 +274,11 @@ class Customers extends Person_controller
 			'taxable'=>$this->input->post('taxable')=='' ? 0:1,
 			'tax_certificate' => $this->input->post('tax_certificate'),
 			'override_default_tax'=> $this->input->post('override_default_tax') ? $this->input->post('override_default_tax') : 0,
+			'is_member'=> $this->input->post('is_member') ? $this->input->post('is_member') : 0,
+			'member_id'=> $this->input->post('is_member') ? $this->input->post('member_id') : NULL
 		);
+		//var_dump($customer_data); exit;
+		//edited by HeinHtetAung at Janu 31 For Member Points Fix });
 		
 		
 		if ($this->config->item('enable_customer_loyalty_system') && $this->config->item('loyalty_option') == 'advanced' &&  count(explode(":",$this->config->item('spend_to_point_ratio'),2)) == 2)
@@ -281,10 +306,12 @@ class Customers extends Person_controller
 			$customer_data['credit_limit'] = NULL;
 		}
 		
-		if ($this->input->post('points')!== NULL && is_numeric($this->input->post('points')))
+		// edited by HeinHtetAung at Janu 31 For Member Points Fix ({
+		if ($points!== NULL && is_numeric($points))
 		{
-			$customer_data['points'] = $this->input->post('points');
+			$customer_data['points'] = $points;
 		}
+		// edited by HeinHtetAung at Janu 31 For Member Points Fix });
 		
 		$redirect_code=$this->input->post('redirect_code');
 		if ($this->input->post('delete_cc_info'))

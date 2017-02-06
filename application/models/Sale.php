@@ -506,7 +506,16 @@ class Sale extends CI_Model
 		
 				$new_point_value = (int) round(to_currency_no_money($new_point_value));
 				$new_current_spend_for_points = to_currency_no_money($new_current_spend_for_points);
-		
+				
+				
+				// edited by HeinHtetAung at Janu 31 For Member Points Fix ({
+				if(!$customer_info->is_member){
+					$new_point_value=$customer_info->points;
+					$new_current_spend_for_points=$customer_info->current_spend_for_points;
+				}
+				// edited by HeinHtetAung at Janu 31 For Member Points Fix });
+				
+				
 				$this->db->where('person_id', $customer_id);
 				$this->db->update('customers', array('points' => $new_point_value, 'current_spend_for_points' => $new_current_spend_for_points));				
 			 }
